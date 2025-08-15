@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Phone, Video, Users, MessageSquare, Settings, LogOut } from "lucide-react";
+import { Phone, Video, Users, MessageSquare, Settings, LogOut, UserCheck } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ChatWindow from "./ChatWindow";
 import FriendsTab from "./FriendsTab";
 
@@ -134,7 +135,10 @@ const MainDashboard = ({ userInfo, onLogout }: MainDashboardProps) => {
                 </div>
               </Card>
             ) : (
-              <FriendsTab currentUser={userInfo} onStartChat={handleStartChat} />
+              <FriendsTab 
+                currentUserId={userInfo.displayName}
+                currentUserUniqueId={userInfo.uniqueId}
+              />
             )}
           </div>
 
