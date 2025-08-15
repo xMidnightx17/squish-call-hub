@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface AuthFlowProps {
   onAuthenticated: (userInfo: { displayName: string; uniqueId: string }) => void;
@@ -11,8 +13,13 @@ const AuthFlow = ({ onAuthenticated }: AuthFlowProps) => {
   const [isSignUp, setIsSignUp] = useState(true);
   const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
-  const [uniqueId, setUniqueId] = useState("");
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  // Simple password hashing (in production, use bcrypt or similar)
+  const hashPassword = (password: string): string => {
+    return btoa(password + "salt_chat2chat"); // Base64 encoding for simplicity
+  };
 
   const generateUniqueId = (name: string): string => {
     const timestamp = Date.now().toString(36);
@@ -27,26 +34,92 @@ const AuthFlow = ({ onAuthenticated }: AuthFlowProps) => {
 
     try {
       if (isSignUp) {
-        const generatedId = generateUniqueId(displayName);
-        setUniqueId(generatedId);
-        
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        onAuthenticated({
-          displayName,
-          uniqueId: generatedId
+        // Check if display name already exists
+        const { data: existing } = await supabase
+          .from('chat_users')
+          .select('display_name')
+          .eq('display_name', displayName)
+          .single();
+
+        if (existing) {
+          toast({
+            title: "Display name taken",
+            description: "This display name is already in use. Please choose another one.",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // Create new user
+        const uniqueId = generateUniqueId(displayName);
+        const passwordHash = hashPassword(password);
+
+        const { error } = await supabase
+          .from('chat_users')
+          .insert([{
+            display_name: displayName,
+            unique_id: uniqueId,
+            password_hash: passwordHash
+          }]);
+
+        if (error) {
+          throw error;
+        }
+
+        toast({
+          title: "Account created!",
+          description: `Your unique ID is: ${uniqueId}`,
         });
-      } else {
-        // Sign in logic
-        await new Promise(resolve => setTimeout(resolve, 1000));
+
         onAuthenticated({
           displayName,
           uniqueId
         });
+      } else {
+        // Sign in - find user by display name and verify password
+        const { data: user, error } = await supabase
+          .from('chat_users')
+          .select('*')
+          .eq('display_name', displayName)
+          .single();
+
+        if (error || !user) {
+          toast({
+            title: "Sign in failed",
+            description: "Display name not found. Please check your credentials.",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // Verify password
+        const passwordHash = hashPassword(password);
+        if (user.password_hash !== passwordHash) {
+          toast({
+            title: "Sign in failed", 
+            description: "Incorrect password. Please try again.",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        toast({
+          title: "Welcome back!",
+          description: `Signed in as ${displayName}`,
+        });
+
+        onAuthenticated({
+          displayName: user.display_name,
+          uniqueId: user.unique_id
+        });
       }
     } catch (error) {
       console.error('Authentication failed:', error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -72,30 +145,13 @@ const AuthFlow = ({ onAuthenticated }: AuthFlowProps) => {
             <Input
               id="displayName"
               type="text"
-              placeholder="Enter your cute username"
+              placeholder={isSignUp ? "Enter your cute username" : "Your display name"}
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               required
               className="rounded-2xl border-2 border-border/50 bg-input/50 focus:border-primary focus:glow transition-all"
             />
           </div>
-
-          {!isSignUp && (
-            <div className="space-y-2">
-              <label htmlFor="uniqueId" className="text-sm font-medium text-foreground">
-                Unique ID
-              </label>
-              <Input
-                id="uniqueId"
-                type="text"
-                placeholder="Your generated ID"
-                value={uniqueId}
-                onChange={(e) => setUniqueId(e.target.value)}
-                required
-                className="rounded-2xl border-2 border-border/50 bg-input/50 focus:border-primary focus:glow transition-all"
-              />
-            </div>
-          )}
 
           <div className="space-y-2">
             <label htmlFor="password" className="text-sm font-medium text-foreground">
@@ -104,7 +160,7 @@ const AuthFlow = ({ onAuthenticated }: AuthFlowProps) => {
             <Input
               id="password"
               type="password"
-              placeholder="Create a secure password"
+              placeholder={isSignUp ? "Create a secure password" : "Enter your password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -127,15 +183,10 @@ const AuthFlow = ({ onAuthenticated }: AuthFlowProps) => {
             )}
           </Button>
 
-          {isSignUp && uniqueId && (
+          {isSignUp && (
             <div className="mt-4 p-3 bg-secondary/50 rounded-2xl border border-border/50">
-              <p className="text-xs text-muted-foreground mb-1">Your unique ID:</p>
-              <p className="text-sm font-mono text-primary font-bold tracking-wider">
-                {uniqueId}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Save this ID - you'll need it to sign in!
-              </p>
+              <p className="text-xs text-muted-foreground mb-1">After signup, you'll get a unique ID that you can use to connect with friends!</p>
+              <p className="text-xs text-primary">💡 Just remember your display name and password for future logins!</p>
             </div>
           )}
         </form>
