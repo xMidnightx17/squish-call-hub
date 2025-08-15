@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { Copy, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,6 +15,8 @@ const AuthFlow = ({ onAuthenticated }: AuthFlowProps) => {
   const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [generatedUniqueId, setGeneratedUniqueId] = useState<string>("");
+  const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
   // Simple password hashing (in production, use bcrypt or similar)
@@ -26,6 +29,24 @@ const AuthFlow = ({ onAuthenticated }: AuthFlowProps) => {
     const randomStr = Math.random().toString(36).substring(2, 8);
     const namePrefix = name.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 4);
     return `${namePrefix}${timestamp}${randomStr}`.toUpperCase();
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      toast({
+        title: "Copied!",
+        description: "Unique ID copied to clipboard",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast({
+        title: "Copy failed",
+        description: "Please manually copy the ID",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,6 +86,8 @@ const AuthFlow = ({ onAuthenticated }: AuthFlowProps) => {
         if (error) {
           throw error;
         }
+
+        setGeneratedUniqueId(uniqueId);
 
         toast({
           title: "Account created!",
@@ -183,7 +206,34 @@ const AuthFlow = ({ onAuthenticated }: AuthFlowProps) => {
             )}
           </Button>
 
-          {isSignUp && (
+          {isSignUp && generatedUniqueId && (
+            <div className="mt-4 p-4 bg-secondary/50 rounded-2xl border border-border/50">
+              <p className="text-xs text-muted-foreground mb-2">Your unique ID:</p>
+              <div className="flex items-center gap-2 p-2 bg-background/50 rounded-xl border">
+                <p className="text-sm font-mono text-primary font-bold tracking-wider flex-1">
+                  {generatedUniqueId}
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => copyToClipboard(generatedUniqueId)}
+                  className="h-8 w-8 hover:bg-primary/20 rounded-lg shrink-0"
+                >
+                  {copied ? (
+                    <Check className="h-4 w-4 text-primary" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                💡 Save this ID - friends can use it to find and connect with you!
+              </p>
+            </div>
+          )}
+
+          {isSignUp && !generatedUniqueId && (
             <div className="mt-4 p-3 bg-secondary/50 rounded-2xl border border-border/50">
               <p className="text-xs text-muted-foreground mb-1">After signup, you'll get a unique ID that you can use to connect with friends!</p>
               <p className="text-xs text-primary">💡 Just remember your display name and password for future logins!</p>
