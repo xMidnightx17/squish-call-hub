@@ -197,6 +197,6 @@ const MainDashboard = ({ userInfo, onLogout }: MainDashboardProps) => {
         </div>
       </div>
     );
-  };
+};
 
 export default MainDashboard;
