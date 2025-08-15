@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Phone, Video, Monitor, Users, MessageSquare, Settings, LogOut } from "lucide-react";
-import CallOverlay from "./CallOverlay";
+import { Phone, Video, Users, MessageSquare, Settings, LogOut } from "lucide-react";
+import ChatWindow from "./ChatWindow";
 
 interface MainDashboardProps {
   userInfo: { displayName: string; uniqueId: string };
@@ -10,21 +10,34 @@ interface MainDashboardProps {
 }
 
 const MainDashboard = ({ userInfo, onLogout }: MainDashboardProps) => {
-  const [activeCall, setActiveCall] = useState<{
-    type: 'voice' | 'video' | 'screen';
-    participants: string[];
+  const [activeChatFriend, setActiveChatFriend] = useState<{
+    name: string;
+    uniqueId: string;
+    lastSeen: string;
   } | null>(null);
 
-  const handleStartCall = (type: 'voice' | 'video' | 'screen') => {
-    setActiveCall({
-      type,
-      participants: [userInfo.displayName]
-    });
+  const friends = [
+    { name: 'CuteBot123', uniqueId: 'CUTE1234567890', lastSeen: 'Last seen 2h ago' },
+    { name: 'NeonFriend456', uniqueId: 'NEON9876543210', lastSeen: 'Last seen 5m ago' },
+    { name: 'TealMaster789', uniqueId: 'TEAL1122334455', lastSeen: 'Online now' }
+  ];
+
+  const handleStartChat = (friend: typeof friends[0]) => {
+    setActiveChatFriend(friend);
   };
 
-  const handleEndCall = () => {
-    setActiveCall(null);
+  const handleBackToMain = () => {
+    setActiveChatFriend(null);
   };
+
+  // Show chat window if a friend is selected
+  if (activeChatFriend) {
+    return (
+      <div className="h-screen flex flex-col">
+        <ChatWindow friend={activeChatFriend} onBack={handleBackToMain} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-6">
@@ -54,73 +67,41 @@ const MainDashboard = ({ userInfo, onLogout }: MainDashboardProps) => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-        {/* Quick Actions */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card className="card-cute">
-            <h2 className="text-xl font-semibold mb-4 text-center">Quick Start Call</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button
-                onClick={() => handleStartCall('voice')}
-                className="btn-neon bg-primary/20 hover:bg-primary/30 text-primary border-2 border-primary/50 hover:border-primary"
-              >
-                <Phone className="w-5 h-5 mr-2" />
-                Voice Call
-              </Button>
-              
-              <Button
-                onClick={() => handleStartCall('video')}
-                className="btn-neon bg-accent/20 hover:bg-accent/30 text-accent border-2 border-accent/50 hover:border-accent"
-              >
-                <Video className="w-5 h-5 mr-2" />
-                Video Call
-              </Button>
-              
-              <Button
-                onClick={() => handleStartCall('screen')}
-                className="btn-neon bg-secondary hover:bg-secondary/80 text-secondary-foreground"
-              >
-                <Monitor className="w-5 h-5 mr-2" />
-                Screen Share
-              </Button>
-            </div>
-          </Card>
-
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {/* Recent Chats */}
-          <Card className="card-cute">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Recent Chats</h2>
-              <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/20 rounded-xl">
-                View All
-              </Button>
-            </div>
-            <div className="space-y-3">
-              {['CuteBot123', 'NeonFriend456', 'TealMaster789'].map((friend, index) => (
-                <div
-                  key={friend}
-                  className="flex items-center gap-3 p-3 hover:bg-secondary/30 rounded-2xl transition-colors cursor-pointer"
-                >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold">
-                    {friend[0]}
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="card-cute">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Recent Chats</h2>
+                <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/20 rounded-xl">
+                  View All
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {friends.map((friend, index) => (
+                  <div
+                    key={friend.name}
+                    className="flex items-center gap-3 p-3 hover:bg-secondary/30 rounded-2xl transition-colors cursor-pointer"
+                    onClick={() => handleStartChat(friend)}
+                  >
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold">
+                      {friend.name[0]}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">{friend.name}</p>
+                      <p className="text-sm text-muted-foreground">{friend.lastSeen}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="text-xs text-muted-foreground bg-secondary/50 px-2 py-1 rounded-lg">
+                        Click to chat & call
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="font-medium">{friend}</p>
-                    <p className="text-sm text-muted-foreground">Last seen 2h ago</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="ghost" size="icon" className="w-8 h-8 rounded-lg hover:bg-primary/20">
-                      <Phone className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="w-8 h-8 rounded-lg hover:bg-accent/20">
-                      <Video className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
+                ))}
+              </div>
+            </Card>
+          </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
@@ -166,18 +147,9 @@ const MainDashboard = ({ userInfo, onLogout }: MainDashboardProps) => {
             </nav>
           </Card>
         </div>
+        </div>
       </div>
-
-      {/* Call Overlay */}
-      {activeCall && (
-        <CallOverlay
-          callType={activeCall.type}
-          participants={activeCall.participants}
-          onEndCall={handleEndCall}
-        />
-      )}
-    </div>
-  );
-};
+    );
+  };
 
 export default MainDashboard;
