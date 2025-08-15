@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import AnimatedRobot from "./AnimatedRobot";
 
 interface AuthFlowProps {
   onAuthenticated: (userInfo: { displayName: string; uniqueId: string }) => void;
@@ -57,7 +56,6 @@ const AuthFlow = ({ onAuthenticated }: AuthFlowProps) => {
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="card-cute w-full max-w-md">
         <div className="text-center mb-8">
-          <AnimatedRobot />
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent mt-4 mb-2">
             Chat2Chat-Web
           </h1>

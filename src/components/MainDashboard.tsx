@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Phone, Video, Monitor, Users, MessageSquare, Settings, LogOut } from "lucide-react";
-import AnimatedRobot from "./AnimatedRobot";
 import CallOverlay from "./CallOverlay";
 
 interface MainDashboardProps {
@@ -32,9 +31,6 @@ const MainDashboard = ({ userInfo, onLogout }: MainDashboardProps) => {
       {/* Header */}
       <header className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12">
-            <AnimatedRobot />
-          </div>
           <div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
               Chat2Chat-Web
