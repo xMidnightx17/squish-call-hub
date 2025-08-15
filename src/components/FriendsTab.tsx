@@ -230,9 +230,9 @@ const FriendsTab = ({ currentUserId, currentUserUniqueId }: FriendsTabProps) => 
   const blockedFriends = friends.filter(friend => friend.status === 'blocked');
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 min-h-screen">
       {/* Add Friend - Larger */}
-      <Card className="card-cute">
+      <Card className="card-cute min-h-[300px]">
         <h2 className="text-2xl font-semibold mb-6">Add Friend</h2>
         <div className="max-w-4xl">
           <div className="flex gap-4">
@@ -257,8 +257,8 @@ const FriendsTab = ({ currentUserId, currentUserUniqueId }: FriendsTabProps) => 
         </div>
       </Card>
 
-      {/* Search & Friends List - Much Larger */}
-      <Card className="card-cute">
+      {/* Search & Friends List - Much Larger & Taller */}
+      <Card className="card-cute min-h-[800px]">
         <div className="flex items-center gap-4 mb-6">
           <Search className="w-6 h-6 text-muted-foreground" />
           <Input
@@ -273,95 +273,97 @@ const FriendsTab = ({ currentUserId, currentUserUniqueId }: FriendsTabProps) => 
         <div className="space-y-6">
           <h3 className="text-2xl font-semibold text-foreground">Friends ({filteredFriends.length})</h3>
           {filteredFriends.length === 0 ? (
-            <div className="text-center py-16 text-muted-foreground">
-              <UserPlus className="w-20 h-20 mx-auto mb-4 opacity-50" />
-              <p className="text-xl mb-2">No friends yet</p>
-              <p className="text-lg">Add some using their unique ID!</p>
+            <div className="text-center py-32 text-muted-foreground min-h-[600px] flex flex-col justify-center">
+              <UserPlus className="w-32 h-32 mx-auto mb-8 opacity-50" />
+              <p className="text-3xl mb-4">No friends yet</p>
+              <p className="text-xl">Add some using their unique ID!</p>
             </div>
           ) : (
-            filteredFriends.map((friend) => (
-              <div key={friend.id} className="flex items-center gap-4 p-5 hover:bg-secondary/30 rounded-2xl transition-colors border border-border/30">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold text-xl">
-                  {(friend.nickname || friend.friend_display_name)[0]}
-                </div>
-                <div className="flex-1 min-w-0">
-                  {editingNickname === friend.id ? (
-                    <div className="flex gap-3">
-                      <Input
-                        value={newNickname}
-                        onChange={(e) => setNewNickname(e.target.value)}
-                        placeholder="Enter nickname"
-                        className="text-lg rounded-xl py-3"
-                        autoFocus
-                      />
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-12 w-12"
-                        onClick={() => updateNickname(friend.id, newNickname)}
-                      >
-                        <Check className="w-5 h-5" />
+            <div className="space-y-6 min-h-[500px]">
+              {filteredFriends.map((friend) => (
+                <div key={friend.id} className="flex items-center gap-4 p-8 hover:bg-secondary/30 rounded-2xl transition-colors border border-border/30 min-h-[100px]">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold text-xl">
+                    {(friend.nickname || friend.friend_display_name)[0]}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    {editingNickname === friend.id ? (
+                      <div className="flex gap-3">
+                        <Input
+                          value={newNickname}
+                          onChange={(e) => setNewNickname(e.target.value)}
+                          placeholder="Enter nickname"
+                          className="text-lg rounded-xl py-3"
+                          autoFocus
+                        />
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-12 w-12"
+                          onClick={() => updateNickname(friend.id, newNickname)}
+                        >
+                          <Check className="w-5 h-5" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-12 w-12"
+                          onClick={() => setEditingNickname(null)}
+                        >
+                          <X className="w-5 h-5" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="font-semibold text-lg">
+                          {friend.nickname || friend.friend_display_name}
+                          {friend.nickname && (
+                            <span className="text-sm text-muted-foreground ml-3">
+                              ({friend.friend_display_name})
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-muted-foreground font-mono text-sm">
+                          ID: {friend.friend_unique_id}
+                        </p>
+                      </>
+                    )}
+                  </div>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-10 w-10">
+                        <MoreVertical className="w-5 h-5" />
                       </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-12 w-12"
-                        onClick={() => setEditingNickname(null)}
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setEditingNickname(friend.id);
+                          setNewNickname(friend.nickname || "");
+                        }}
                       >
-                        <X className="w-5 h-5" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <>
-                      <p className="font-semibold text-lg">
-                        {friend.nickname || friend.friend_display_name}
-                        {friend.nickname && (
-                          <span className="text-sm text-muted-foreground ml-3">
-                            ({friend.friend_display_name})
-                          </span>
-                        )}
-                      </p>
-                      <p className="text-muted-foreground font-mono text-sm">
-                        ID: {friend.friend_unique_id}
-                      </p>
-                    </>
-                  )}
+                        <Edit3 className="w-5 h-5 mr-2" />
+                        Edit Nickname
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => updateFriendStatus(friend.id, 'blocked')}
+                        className="text-yellow-600"
+                      >
+                        <UserX className="w-5 h-5 mr-2" />
+                        Block
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => removeFriend(friend.id)}
+                        className="text-destructive"
+                      >
+                        <UserMinus className="w-5 h-5 mr-2" />
+                        Remove
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-                
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-10 w-10">
-                      <MoreVertical className="w-5 h-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setEditingNickname(friend.id);
-                        setNewNickname(friend.nickname || "");
-                      }}
-                    >
-                      <Edit3 className="w-5 h-5 mr-2" />
-                      Edit Nickname
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => updateFriendStatus(friend.id, 'blocked')}
-                      className="text-yellow-600"
-                    >
-                      <UserX className="w-5 h-5 mr-2" />
-                      Block
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => removeFriend(friend.id)}
-                      className="text-destructive"
-                    >
-                      <UserMinus className="w-5 h-5 mr-2" />
-                      Remove
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
 
