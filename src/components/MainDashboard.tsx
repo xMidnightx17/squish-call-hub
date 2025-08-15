@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Phone, Video, Users, MessageSquare, Settings, LogOut } from "lucide-react";
+import { Phone, Video, Users, MessageSquare, Settings, LogOut, UserPlus } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ChatWindow from "./ChatWindow";
 import FriendsTab from "./FriendsTab";
 
@@ -69,59 +71,129 @@ const MainDashboard = ({ userInfo, onLogout }: MainDashboardProps) => {
       </header>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {/* Friends Panel */}
-          <div className="lg:col-span-2">
-            <FriendsTab 
-              currentUserId={userInfo.displayName}
-              currentUserUniqueId={userInfo.uniqueId}
-            />
-          </div>
+        <div className="max-w-7xl mx-auto">
+          <Tabs defaultValue="friends" className="w-full">
+            {/* Top Navigation Tabs */}
+            <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-4 mb-6 bg-secondary/50 rounded-2xl h-12">
+              <TabsTrigger value="add-friend" className="rounded-2xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <UserPlus className="w-4 h-4 mr-2" />
+                Add Friend
+              </TabsTrigger>
+              <TabsTrigger value="friends" className="rounded-2xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <Users className="w-4 h-4 mr-2" />
+                Friends
+              </TabsTrigger>
+              <TabsTrigger value="chats" className="rounded-2xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Recent Chats
+              </TabsTrigger>
+              <TabsTrigger value="calls" className="rounded-2xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <Phone className="w-4 h-4 mr-2" />
+                Call History
+              </TabsTrigger>
+            </TabsList>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* User Info */}
-          <Card className="card-cute">
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold text-xl mx-auto mb-3">
-                {userInfo.displayName[0]}
+            {/* Content Area */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+              {/* Main Content - Now Much Bigger */}
+              <div className="lg:col-span-4">
+                <TabsContent value="add-friend" className="m-0">
+                  <Card className="card-cute">
+                    <h2 className="text-2xl font-semibold mb-6">Add New Friend</h2>
+                    <div className="max-w-2xl">
+                      {/* Just the add friend section from FriendsTab */}
+                      <div className="space-y-4">
+                        <div className="flex gap-3">
+                          <Input
+                            placeholder="Enter friend's unique ID (e.g., CUTE1234567890)"
+                            className="flex-1 rounded-2xl border-2 border-border/50 bg-input/50 focus:border-primary focus:glow transition-all text-lg py-6"
+                          />
+                          <Button className="btn-neon px-8 py-6 text-lg">
+                            <UserPlus className="w-5 h-5 mr-2" />
+                            Add Friend
+                          </Button>
+                        </div>
+                        <div className="bg-secondary/30 rounded-2xl p-6">
+                          <h3 className="font-semibold mb-3">💡 How to add friends:</h3>
+                          <ul className="text-sm text-muted-foreground space-y-2">
+                            <li>• Ask your friends for their unique ID</li>
+                            <li>• Each ID is unique and generated when they sign up</li>
+                            <li>• Once added, you can chat and call them directly!</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="friends" className="m-0">
+                  <FriendsTab 
+                    currentUserId={userInfo.displayName}
+                    currentUserUniqueId={userInfo.uniqueId}
+                  />
+                </TabsContent>
+
+                <TabsContent value="chats" className="m-0">
+                  <Card className="card-cute">
+                    <h2 className="text-2xl font-semibold mb-6">Recent Chats</h2>
+                    <div className="space-y-4">
+                      {friends.map((friend, index) => (
+                        <div
+                          key={friend.name}
+                          className="flex items-center gap-4 p-4 hover:bg-secondary/30 rounded-2xl transition-colors cursor-pointer"
+                          onClick={() => handleStartChat(friend)}
+                        >
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold text-lg">
+                            {friend.name[0]}
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold text-lg">{friend.name}</p>
+                            <p className="text-muted-foreground">{friend.lastSeen}</p>
+                          </div>
+                          <div className="text-sm text-muted-foreground bg-secondary/50 px-3 py-2 rounded-lg">
+                            Click to chat & call
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="calls" className="m-0">
+                  <Card className="card-cute">
+                    <h2 className="text-2xl font-semibold mb-6">Call History</h2>
+                    <div className="space-y-4">
+                      <div className="text-center py-12 text-muted-foreground">
+                        <Phone className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                        <p className="text-lg">No call history yet</p>
+                        <p>Start chatting with friends to make calls!</p>
+                      </div>
+                    </div>
+                  </Card>
+                </TabsContent>
               </div>
-              <h3 className="font-semibold text-lg">{userInfo.displayName}</h3>
-              <p className="text-sm text-muted-foreground font-mono bg-secondary/50 rounded-lg px-2 py-1 mt-2">
-                ID: {userInfo.uniqueId}
-              </p>
-              <div className="flex items-center justify-center gap-2 mt-3">
-                <div className="w-2 h-2 rounded-full bg-primary glow-strong"></div>
-                <span className="text-sm text-primary font-medium">Online</span>
+
+              {/* Sidebar - Now Much Smaller */}
+              <div className="lg:col-span-1">
+                {/* User Info - Compact */}
+                <Card className="card-cute">
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold mx-auto mb-2">
+                      {userInfo.displayName[0]}
+                    </div>
+                    <h3 className="font-semibold">{userInfo.displayName}</h3>
+                    <p className="text-xs text-muted-foreground font-mono bg-secondary/50 rounded-lg px-2 py-1 mt-2 break-all">
+                      {userInfo.uniqueId}
+                    </p>
+                    <div className="flex items-center justify-center gap-1 mt-2">
+                      <div className="w-2 h-2 rounded-full bg-primary glow-strong"></div>
+                      <span className="text-xs text-primary font-medium">Online</span>
+                    </div>
+                  </div>
+                </Card>
               </div>
             </div>
-          </Card>
-
-          {/* Navigation */}
-          <Card className="card-cute">
-            <nav className="space-y-2">
-              {[
-                { icon: Users, label: "Friends", count: 12 },
-                { icon: MessageSquare, label: "Recent Chats", count: 3 },
-                { icon: Phone, label: "Call History", count: 8 }
-              ].map((item, index) => (
-                <Button
-                  key={item.label}
-                  variant="ghost"
-                  className="w-full justify-start hover:bg-secondary/50 rounded-2xl text-left"
-                >
-                  <item.icon className="w-5 h-5 mr-3" />
-                  <span className="flex-1">{item.label}</span>
-                  {item.count > 0 && (
-                    <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full glow">
-                      {item.count}
-                    </span>
-                  )}
-                </Button>
-              ))}
-            </nav>
-          </Card>
-        </div>
+          </Tabs>
         </div>
       </div>
     );
