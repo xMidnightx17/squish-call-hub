@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Phone, Video, Users, MessageSquare, Settings, LogOut, UserPlus } from "lucide-react";
+import { Phone, Video, Users, MessageSquare, Settings, LogOut, UserPlus, Copy, Check } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ChatWindow from "./ChatWindow";
 import FriendsTab from "./FriendsTab";
+import { useUserPresence } from "@/hooks/use-user-presence";
+import { useToast } from "@/hooks/use-toast";
 
 interface MainDashboardProps {
   userInfo: { displayName: string; uniqueId: string };
@@ -18,6 +20,11 @@ const MainDashboard = ({ userInfo, onLogout }: MainDashboardProps) => {
     uniqueId: string;
     lastSeen: string;
   } | null>(null);
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
+
+  // Initialize user presence tracking
+  useUserPresence(userInfo.uniqueId);
 
   const friends = [
     { name: 'CuteBot123', uniqueId: 'CUTE1234567890', lastSeen: 'Last seen 2h ago' },
@@ -33,11 +40,71 @@ const MainDashboard = ({ userInfo, onLogout }: MainDashboardProps) => {
     setActiveChatFriend(null);
   };
 
+  const copyUniqueId = async () => {
+    try {
+      // Modern clipboard API
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(userInfo.uniqueId);
+      } else {
+        // Fallback for older browsers or non-secure contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = userInfo.uniqueId;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        if (!successful) {
+          throw new Error('Copy command failed');
+        }
+      }
+      
+      setCopied(true);
+      toast({
+        title: "Copied! 📋",
+        description: "Your unique ID has been copied to clipboard",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      // If all else fails, select the text for manual copying
+      const element = document.getElementById('unique-id-text');
+      if (element && window.getSelection) {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        
+        toast({
+          title: "Text selected! 📋",
+          description: "Your unique ID is selected - press Ctrl+C to copy",
+          variant: "default"
+        });
+      } else {
+        toast({
+          title: "Copy not supported",
+          description: `Please manually copy: ${userInfo.uniqueId}`,
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
   // Show chat window if a friend is selected
   if (activeChatFriend) {
     return (
       <div className="h-screen flex flex-col">
-        <ChatWindow friend={activeChatFriend} onBack={handleBackToMain} />
+        <ChatWindow 
+          friend={activeChatFriend} 
+          currentUserId={userInfo.displayName}
+          currentUserUniqueId={userInfo.uniqueId}
+          onBack={handleBackToMain} 
+        />
       </div>
     );
   }
@@ -94,11 +161,11 @@ const MainDashboard = ({ userInfo, onLogout }: MainDashboardProps) => {
             </TabsList>
 
             {/* Content Area */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-[calc(100vh-16rem)]">
               {/* Main Content - Now Much Bigger */}
-              <div className="lg:col-span-4">
-                <TabsContent value="add-friend" className="m-0">
-                  <Card className="card-cute">
+              <div className="lg:col-span-4 h-full">
+                <TabsContent value="add-friend" className="m-0 h-full">
+                  <Card className="card-cute h-full">
                     <h2 className="text-2xl font-semibold mb-6">Add New Friend</h2>
                     <div className="max-w-2xl">
                       {/* Just the add friend section from FriendsTab */}
@@ -126,7 +193,7 @@ const MainDashboard = ({ userInfo, onLogout }: MainDashboardProps) => {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="friends" className="m-0">
+                <TabsContent value="friends" className="m-0 h-full">
                   <FriendsTab 
                     currentUserId={userInfo.displayName}
                     currentUserUniqueId={userInfo.uniqueId}
@@ -182,9 +249,29 @@ const MainDashboard = ({ userInfo, onLogout }: MainDashboardProps) => {
                       {userInfo.displayName[0]}
                     </div>
                     <h3 className="font-semibold">{userInfo.displayName}</h3>
-                    <p className="text-xs text-muted-foreground font-mono bg-secondary/50 rounded-lg px-2 py-1 mt-2 break-all">
-                      {userInfo.uniqueId}
-                    </p>
+                    <div className="relative mt-2">
+                      <div className="flex items-center gap-2 bg-secondary/50 rounded-lg px-2 py-1">
+                        <p 
+                          id="unique-id-text"
+                          className="text-xs text-muted-foreground font-mono break-all flex-1 select-all"
+                        >
+                          {userInfo.uniqueId}
+                        </p>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={copyUniqueId}
+                          className="h-6 w-6 hover:bg-primary/20 rounded-md shrink-0"
+                          title="Copy your unique ID"
+                        >
+                          {copied ? (
+                            <Check className="h-3 w-3 text-primary" />
+                          ) : (
+                            <Copy className="h-3 w-3" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
                     <div className="flex items-center justify-center gap-1 mt-2">
                       <div className="w-2 h-2 rounded-full bg-primary glow-strong"></div>
                       <span className="text-xs text-primary font-medium">Online</span>

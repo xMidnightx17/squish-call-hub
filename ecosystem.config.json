@@ -1,0 +1,40 @@
+{
+  "apps": [
+    {
+      "name": "chat2chat-signaling",
+      "script": "signaling-server/server.js",
+      "watch": false,
+      "instances": 1,
+      "exec_mode": "fork",
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": 3001
+      },
+      "error_file": "./logs/signaling-error.log",
+      "out_file": "./logs/signaling-out.log",
+      "log_file": "./logs/signaling.log",
+      "time": true,
+      "restart_delay": 1000,
+      "max_restarts": 10,
+      "min_uptime": "10s"
+    },
+    {
+      "name": "chat2chat-frontend",
+      "script": "npm",
+      "args": "run dev",
+      "watch": false,
+      "instances": 1,
+      "exec_mode": "fork",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "error_file": "./logs/frontend-error.log",
+      "out_file": "./logs/frontend-out.log",
+      "log_file": "./logs/frontend.log",
+      "time": true,
+      "restart_delay": 1000,
+      "max_restarts": 10,
+      "min_uptime": "10s"
+    }
+  ]
+}

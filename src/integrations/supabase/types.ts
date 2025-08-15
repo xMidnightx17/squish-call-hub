@@ -41,6 +41,89 @@ export type Database = {
         }
         Relationships: []
       }
+      messages: {
+        Row: {
+          id: string
+          sender_id: string
+          recipient_id: string
+          content: string
+          message_type: string
+          created_at: string
+          updated_at: string
+          is_read: boolean
+          is_edited: boolean
+          edited_at: string | null
+        }
+        Insert: {
+          id?: string
+          sender_id: string
+          recipient_id: string
+          content: string
+          message_type?: string
+          created_at?: string
+          updated_at?: string
+          is_read?: boolean
+          is_edited?: boolean
+          edited_at?: string | null
+        }
+        Update: {
+          id?: string
+          sender_id?: string
+          recipient_id?: string
+          content?: string
+          message_type?: string
+          created_at?: string
+          updated_at?: string
+          is_read?: boolean
+          is_edited?: boolean
+          edited_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      user_presence: {
+        Row: {
+          user_id: string
+          status: string
+          last_seen: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          status?: string
+          last_seen?: string
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          status?: string
+          last_seen?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_presence_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       friends: {
         Row: {
           created_at: string

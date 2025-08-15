@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Copy, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import bcrypt from "bcryptjs";
 
 interface AuthFlowProps {
   onAuthenticated: (userInfo: { displayName: string; uniqueId: string }) => void;
@@ -19,9 +20,15 @@ const AuthFlow = ({ onAuthenticated }: AuthFlowProps) => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
-  // Simple password hashing (in production, use bcrypt or similar)
-  const hashPassword = (password: string): string => {
-    return btoa(password + "salt_chat2chat"); // Base64 encoding for simplicity
+  // Secure password hashing using bcrypt
+  const hashPassword = async (password: string): Promise<string> => {
+    const saltRounds = 12;
+    return await bcrypt.hash(password, saltRounds);
+  };
+
+  // Verify password against hash
+  const verifyPassword = async (password: string, hash: string): Promise<boolean> => {
+    return await bcrypt.compare(password, hash);
   };
 
   const generateUniqueId = (name: string): string => {
@@ -73,7 +80,7 @@ const AuthFlow = ({ onAuthenticated }: AuthFlowProps) => {
 
         // Create new user
         const uniqueId = generateUniqueId(displayName);
-        const passwordHash = hashPassword(password);
+        const passwordHash = await hashPassword(password);
 
         const { error } = await supabase
           .from('chat_users')
@@ -116,8 +123,8 @@ const AuthFlow = ({ onAuthenticated }: AuthFlowProps) => {
         }
 
         // Verify password
-        const passwordHash = hashPassword(password);
-        if (user.password_hash !== passwordHash) {
+        const isPasswordValid = await verifyPassword(password, user.password_hash);
+        if (!isPasswordValid) {
           toast({
             title: "Sign in failed", 
             description: "Incorrect password. Please try again.",
