@@ -230,95 +230,98 @@ const FriendsTab = ({ currentUserId, currentUserUniqueId }: FriendsTabProps) => 
   const blockedFriends = friends.filter(friend => friend.status === 'blocked');
 
   return (
-    <div className="space-y-6">
-      {/* Add Friend */}
+    <div className="space-y-8">
+      {/* Add Friend - Larger */}
       <Card className="card-cute">
-        <h2 className="text-xl font-semibold mb-4">Add Friend</h2>
-        <div className="flex gap-2">
-          <Input
-            placeholder="Enter friend's unique ID (e.g., CUTE1234567890)"
-            value={addFriendId}
-            onChange={(e) => setAddFriendId(e.target.value.toUpperCase())}
-            className="flex-1 rounded-2xl border-2 border-border/50 bg-input/50 focus:border-primary focus:glow transition-all"
-          />
-          <Button
-            onClick={addFriend}
-            disabled={loading || !addFriendId.trim()}
-            className="btn-neon px-4"
-          >
-            <UserPlus className="w-4 h-4 mr-2" />
-            Add
-          </Button>
+        <h2 className="text-2xl font-semibold mb-6">Add Friend</h2>
+        <div className="max-w-4xl">
+          <div className="flex gap-4">
+            <Input
+              placeholder="Enter friend's unique ID (e.g., CUTE1234567890)"
+              value={addFriendId}
+              onChange={(e) => setAddFriendId(e.target.value.toUpperCase())}
+              className="flex-1 rounded-2xl border-2 border-border/50 bg-input/50 focus:border-primary focus:glow transition-all text-lg py-6"
+            />
+            <Button
+              onClick={addFriend}
+              disabled={loading || !addFriendId.trim()}
+              className="btn-neon px-8 py-6 text-lg"
+            >
+              <UserPlus className="w-5 h-5 mr-2" />
+              Add
+            </Button>
+          </div>
+          <p className="text-muted-foreground mt-4 text-lg">
+            💡 Ask your friends for their unique ID to add them!
+          </p>
         </div>
-        <p className="text-xs text-muted-foreground mt-2">
-          💡 Ask your friends for their unique ID to add them!
-        </p>
       </Card>
 
-      {/* Search Friends */}
+      {/* Search & Friends List - Much Larger */}
       <Card className="card-cute">
-        <div className="flex items-center gap-2 mb-4">
-          <Search className="w-5 h-5 text-muted-foreground" />
+        <div className="flex items-center gap-4 mb-6">
+          <Search className="w-6 h-6 text-muted-foreground" />
           <Input
             placeholder="Search friends..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="rounded-2xl border-2 border-border/50 bg-input/50 focus:border-primary focus:glow transition-all"
+            className="rounded-2xl border-2 border-border/50 bg-input/50 focus:border-primary focus:glow transition-all text-lg py-6"
           />
         </div>
 
         {/* Friends List */}
-        <div className="space-y-3">
-          <h3 className="font-semibold text-foreground">Friends ({filteredFriends.length})</h3>
+        <div className="space-y-6">
+          <h3 className="text-2xl font-semibold text-foreground">Friends ({filteredFriends.length})</h3>
           {filteredFriends.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <UserPlus className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p>No friends yet. Add some using their unique ID!</p>
+            <div className="text-center py-16 text-muted-foreground">
+              <UserPlus className="w-20 h-20 mx-auto mb-4 opacity-50" />
+              <p className="text-xl mb-2">No friends yet</p>
+              <p className="text-lg">Add some using their unique ID!</p>
             </div>
           ) : (
             filteredFriends.map((friend) => (
-              <div key={friend.id} className="flex items-center gap-3 p-3 hover:bg-secondary/30 rounded-2xl transition-colors">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold">
+              <div key={friend.id} className="flex items-center gap-4 p-5 hover:bg-secondary/30 rounded-2xl transition-colors border border-border/30">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold text-xl">
                   {(friend.nickname || friend.friend_display_name)[0]}
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   {editingNickname === friend.id ? (
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                       <Input
                         value={newNickname}
                         onChange={(e) => setNewNickname(e.target.value)}
                         placeholder="Enter nickname"
-                        className="text-sm rounded-xl"
+                        className="text-lg rounded-xl py-3"
                         autoFocus
                       />
                       <Button
                         size="icon"
                         variant="ghost"
-                        className="h-8 w-8"
+                        className="h-12 w-12"
                         onClick={() => updateNickname(friend.id, newNickname)}
                       >
-                        <Check className="w-4 h-4" />
+                        <Check className="w-5 h-5" />
                       </Button>
                       <Button
                         size="icon"
                         variant="ghost"
-                        className="h-8 w-8"
+                        className="h-12 w-12"
                         onClick={() => setEditingNickname(null)}
                       >
-                        <X className="w-4 h-4" />
+                        <X className="w-5 h-5" />
                       </Button>
                     </div>
                   ) : (
                     <>
-                      <p className="font-medium">
+                      <p className="font-semibold text-lg">
                         {friend.nickname || friend.friend_display_name}
                         {friend.nickname && (
-                          <span className="text-xs text-muted-foreground ml-2">
+                          <span className="text-sm text-muted-foreground ml-3">
                             ({friend.friend_display_name})
                           </span>
                         )}
                       </p>
-                      <p className="text-xs text-muted-foreground font-mono">
+                      <p className="text-muted-foreground font-mono text-sm">
                         ID: {friend.friend_unique_id}
                       </p>
                     </>
@@ -327,8 +330,8 @@ const FriendsTab = ({ currentUserId, currentUserUniqueId }: FriendsTabProps) => 
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreVertical className="w-4 h-4" />
+                    <Button variant="ghost" size="icon" className="h-10 w-10">
+                      <MoreVertical className="w-5 h-5" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
@@ -338,21 +341,21 @@ const FriendsTab = ({ currentUserId, currentUserUniqueId }: FriendsTabProps) => 
                         setNewNickname(friend.nickname || "");
                       }}
                     >
-                      <Edit3 className="w-4 h-4 mr-2" />
+                      <Edit3 className="w-5 h-5 mr-2" />
                       Edit Nickname
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => updateFriendStatus(friend.id, 'blocked')}
                       className="text-yellow-600"
                     >
-                      <UserX className="w-4 h-4 mr-2" />
+                      <UserX className="w-5 h-5 mr-2" />
                       Block
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => removeFriend(friend.id)}
                       className="text-destructive"
                     >
-                      <UserMinus className="w-4 h-4 mr-2" />
+                      <UserMinus className="w-5 h-5 mr-2" />
                       Remove
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -364,25 +367,25 @@ const FriendsTab = ({ currentUserId, currentUserUniqueId }: FriendsTabProps) => 
 
         {/* Blocked Users */}
         {blockedFriends.length > 0 && (
-          <div className="space-y-3 mt-6 pt-6 border-t border-border/30">
-            <h3 className="font-semibold text-foreground">Blocked ({blockedFriends.length})</h3>
+          <div className="space-y-6 mt-10 pt-8 border-t border-border/30">
+            <h3 className="text-2xl font-semibold text-foreground">Blocked ({blockedFriends.length})</h3>
             {blockedFriends.map((friend) => (
-              <div key={friend.id} className="flex items-center gap-3 p-3 bg-destructive/10 rounded-2xl">
-                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-bold">
+              <div key={friend.id} className="flex items-center gap-4 p-5 bg-destructive/10 rounded-2xl border border-destructive/20">
+                <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-bold text-xl">
                   {friend.friend_display_name[0]}
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium text-muted-foreground">
+                  <p className="font-semibold text-muted-foreground text-lg">
                     {friend.nickname || friend.friend_display_name}
                   </p>
-                  <p className="text-xs text-muted-foreground">Blocked</p>
+                  <p className="text-muted-foreground">Blocked</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => updateFriendStatus(friend.id, 'friends')}
-                    className="text-xs"
+                    className="px-4 py-2"
                   >
                     Unblock
                   </Button>
@@ -390,7 +393,7 @@ const FriendsTab = ({ currentUserId, currentUserUniqueId }: FriendsTabProps) => 
                     size="sm"
                     variant="ghost"
                     onClick={() => removeFriend(friend.id)}
-                    className="text-xs text-destructive"
+                    className="px-4 py-2 text-destructive"
                   >
                     Remove
                   </Button>
