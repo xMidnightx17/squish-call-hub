@@ -2,41 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Chat2Chat-Web Design System - Cute Teal Neon Theme */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Dark theme with teal neon accents */
+    --background: 225 15% 8%;
+    --foreground: 180 100% 90%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 225 20% 12%;
+    --card-foreground: 180 100% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 225 25% 10%;
+    --popover-foreground: 180 100% 95%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Teal neon primary */
+    --primary: 180 100% 50%;
+    --primary-foreground: 225 15% 8%;
+    --primary-glow: 180 100% 60%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Soft secondary */
+    --secondary: 225 20% 18%;
+    --secondary-foreground: 180 80% 85%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 225 15% 15%;
+    --muted-foreground: 180 30% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Cute accent colors */
+    --accent: 320 60% 70%;
+    --accent-foreground: 225 15% 8%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 75% 60%;
+    --destructive-foreground: 180 100% 95%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 225 20% 20%;
+    --input: 225 25% 15%;
+    --ring: 180 100% 50%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
+
+    /* Custom neon effects */
+    --neon-glow: 0 0 20px hsl(180 100% 50% / 0.5);
+    --neon-glow-strong: 0 0 30px hsl(180 100% 50% / 0.8);
+    --soft-glow: 0 0 15px hsl(320 60% 70% / 0.3);
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(180 100% 50%), hsl(180 80% 60%));
+    --gradient-background: radial-gradient(circle at 20% 50%, hsl(180 100% 10% / 0.3) 0%, transparent 50%), 
+                          radial-gradient(circle at 80% 20%, hsl(320 60% 10% / 0.2) 0%, transparent 50%),
+                          linear-gradient(180deg, hsl(225 15% 8%), hsl(225 20% 6%));
+    --gradient-card: linear-gradient(145deg, hsl(225 20% 12%), hsl(225 25% 15%));
+
+    /* Animations */
+    --bounce-gentle: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Robot colors */
+    --robot-body: 200 100% 85%;
+    --robot-blush: 320 60% 75%;
+    --robot-accent: 180 100% 50%;
 
     --sidebar-background: 0 0% 98%;
 
@@ -101,5 +125,165 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    background: var(--gradient-background);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: var(--radius);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.6);
+    border-radius: var(--radius);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary));
+  }
+}
+
+@layer components {
+  /* Neon button variants */
+  .btn-neon {
+    @apply bg-primary text-primary-foreground px-6 py-3 rounded-2xl font-semibold transition-all duration-300;
+    box-shadow: var(--neon-glow);
+  }
+  .btn-neon:hover {
+    box-shadow: var(--neon-glow-strong);
+    transform: translateY(-2px);
+  }
+
+  /* Cute card style */
+  .card-cute {
+    @apply bg-card border-border rounded-3xl p-6;
+    background: var(--gradient-card);
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 8px 32px hsl(var(--background) / 0.2);
+  }
+
+  /* Robot animation container */
+  .robot-container {
+    @apply relative w-32 h-32 mx-auto;
+  }
+
+  /* Animated robot */
+  .robot {
+    @apply w-full h-full relative;
+    animation: float 3s ease-in-out infinite, pulse-glow 2s ease-in-out infinite alternate;
+  }
+
+  .robot-body {
+    @apply absolute inset-0 rounded-full;
+    background: hsl(var(--robot-body));
+    box-shadow: 0 0 20px hsl(var(--robot-accent) / 0.3);
+  }
+
+  .robot-eyes {
+    @apply absolute flex gap-2 top-8 left-1/2 transform -translate-x-1/2;
+  }
+
+  .robot-eye {
+    @apply w-6 h-8 bg-background rounded-full relative overflow-hidden;
+    animation: blink 4s infinite, squish 3s ease-in-out infinite;
+  }
+
+  .robot-pupil {
+    @apply absolute w-3 h-3 bg-foreground rounded-full top-1 left-1/2 transform -translate-x-1/2;
+    animation: look-around 6s ease-in-out infinite;
+  }
+
+  .robot-blush {
+    @apply absolute w-4 h-3 rounded-full top-12;
+    background: hsl(var(--robot-blush));
+    opacity: 0.7;
+    animation: blush-pulse 2s ease-in-out infinite;
+  }
+
+  .robot-blush.left {
+    @apply left-4;
+  }
+
+  .robot-blush.right {
+    @apply right-4;
+  }
+
+  .robot-antenna {
+    @apply absolute w-1 h-4 rounded-full top-2 left-1/2 transform -translate-x-1/2;
+    background: hsl(var(--robot-accent));
+    box-shadow: 0 0 10px hsl(var(--robot-accent) / 0.6);
+  }
+
+  .robot-antenna::after {
+    content: '';
+    @apply absolute w-2 h-2 rounded-full -top-1 left-1/2 transform -translate-x-1/2;
+    background: hsl(var(--primary));
+    box-shadow: 0 0 8px hsl(var(--primary));
+    animation: antenna-glow 1.5s ease-in-out infinite;
+  }
+
+  /* Call overlay styles */
+  .call-overlay {
+    @apply fixed inset-0 z-50 backdrop-blur-sm;
+    background: hsl(var(--background) / 0.8);
+  }
+
+  .call-window {
+    @apply absolute rounded-3xl overflow-hidden;
+    background: var(--gradient-card);
+    border: 2px solid hsl(var(--border));
+    box-shadow: 0 25px 50px hsl(var(--background) / 0.3);
+  }
+}
+
+@layer utilities {
+  .glow {
+    box-shadow: var(--neon-glow);
+  }
+  .glow-strong {
+    box-shadow: var(--neon-glow-strong);
+  }
+  .soft-glow {
+    box-shadow: var(--soft-glow);
+  }
+}
+
+/* Keyframe animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 20px hsl(var(--robot-accent) / 0.3); }
+  100% { box-shadow: 0 0 30px hsl(var(--robot-accent) / 0.6); }
+}
+
+@keyframes blink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+@keyframes squish {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.8); }
+}
+
+@keyframes look-around {
+  0%, 100% { transform: translateX(-50%); }
+  25% { transform: translateX(-70%); }
+  75% { transform: translateX(-30%); }
+}
+
+@keyframes blush-pulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes antenna-glow {
+  0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
+  50% { opacity: 0.5; transform: translateX(-50%) scale(1.2); }
 }
